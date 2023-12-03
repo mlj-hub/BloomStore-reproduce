@@ -1,0 +1,5 @@
+.vscode/*
+
+build/*
+configure
+raw_block
