@@ -3,7 +3,7 @@ SRC = ./src
 BLOCK_SIZE = 10M
 
 all: 
-	g++ -o $(BLD)/main main.cpp $(SRC)/BloomStore.cpp
+	g++ -O3 -g -o $(BLD)/main main.cpp $(SRC)/BloomStore.cpp $(SRC)/BloomFilter.cpp
 
 test: all
 	$(BLD)/main `cat configure`

@@ -6,10 +6,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <random>
+#include <ctime>
+
+#include "inc/BloomFilter.h"
 
 int main(int argc,char ** argv){
     int fd;
-    fd = open(argv[1],O_RDWR);
+    fd = open(argv[1],O_RDWR|O_DIRECT);
     if(fd == -1){
         printf("unable to open device\n");
         exit(-1);
