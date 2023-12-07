@@ -3,7 +3,7 @@ SRC = ./src
 BLOCK_SIZE = 10M
 
 all: 
-	g++ -O3 -g -o $(BLD)/main main.cpp $(SRC)/BloomStore.cpp $(SRC)/BloomFilter.cpp
+	g++ -O3 -g -Wextra -Wall -o $(BLD)/main main.cpp $(SRC)/BloomStore.cpp $(SRC)/BloomFilter.cpp
 
 test: all
 	$(BLD)/main `cat configure`
@@ -16,6 +16,9 @@ deinit:
 
 generate_block:
 	sudo dd if=/dev/zero of=./raw_block ibs=1 count=$(BLOCK_SIZE)
+
+debug: all
+	gdb --args $(BLD)/main `cat configure`
 
 clean:
 	rm -rf ./$(BLD)/*

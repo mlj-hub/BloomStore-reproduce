@@ -3,12 +3,12 @@
 
 
 // number of bits
-#define M_BITS 1000
+#define M_BITS 64
 // number of hash functions
-#define K_FUNC 10
+#define K_FUNC 6
 
 // below are in bytes
-#define FLASH_PAGE_SIZE 4096
+#define FLASH_PAGE_SIZE 512
 #define KV_PAIR_SIZE 64
 #define MAX_BF_CHAIN_LEN 96
 #define KEY_SIZE 5*4

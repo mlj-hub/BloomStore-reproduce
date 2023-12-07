@@ -14,6 +14,7 @@
 #define BF_SIZE (sizeof(Bloom_filter_t) + sizeof(uint32_t))
 
 class Bloom_store_t{
+public:
     struct KV_pair_t{
         uint32_t key[5];
         uint32_t value[11];
@@ -39,7 +40,7 @@ class Bloom_store_t{
     // i-th bloomstore instance, used for part block device
     int32_t id;
     // current bf_chain_len
-    uint32_t cur_bf_chain_len;
+    uint32_t in_flash_bf_chain_len;
     // begining address of the flash pages storing the remainder of the BFchain
     uint32_t bf_chain_begin_addr;
 
@@ -47,12 +48,14 @@ class Bloom_store_t{
 
     void flush();
     bool KV_lookup(uint32_t * key, uint32_t * value);
-    bool KV_insertion(uint32_t * key, uint32_t * value);
-    bool bf_chain_parallel_lookup(uint32_t * key,void * remainder_bf_chain ,bool * res);
+    void KV_insertion(uint32_t * key, uint32_t * value);
+    void KV_deletion(uint32_t * key);
+    void bf_chain_parallel_lookup(uint32_t * key,BF_t * remainder_bf_chain ,bool * res);
     // read NUM pages from OFS into BUF, return current offset
     uint32_t read_pages(uint32_t ofs, void * buf, uint32_t num);
-    // write(append) NUM pages, return success
-    bool write_pages(void * buf,uint32_t num);
+    // write(append) NUM pages, return offset before writing
+    uint32_t write_pages(void * buf,uint32_t num);
+    bool is_value_valid(uint32_t * value);
 };
 
 #endif

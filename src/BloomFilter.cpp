@@ -4,7 +4,38 @@ Bloom_filter_t::Bloom_filter_t(){
     v.reset();
 }
 
-uint32_t Bloom_filter_t::murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
+void Bloom_filter_t::reset(){
+    v.reset();
+}
+
+void Bloom_filter_t::insert(uint32_t * key,uint32_t * seeds){
+    // key is a array containing 5 elements
+    for(int i=0;i<K_FUNC;i++){
+        uint32_t hash_value = murmur3_32((const uint8_t *)key,5*4,seeds[i]);
+        v.set(hash_value % M_BITS,1);
+    }
+}
+
+bool Bloom_filter_t::find(uint32_t * key,uint32_t * seeds){
+    // key is a array containing 5 elements
+    bool exist = 1;
+    for(int i=0;i<K_FUNC;i++){
+        uint32_t hash_value = murmur3_32((const uint8_t *)key,5*4,seeds[i]);
+        exist &= v.test(hash_value % M_BITS);
+    }
+    return exist;
+}
+
+Bloom_filter_t & Bloom_filter_t::operator=(Bloom_filter_t & rhs){
+    this->v = rhs.v;
+    return *this;
+}
+
+bool Bloom_filter_t::operator[](uint32_t ofs){
+    return v.test(ofs);
+}
+
+uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 {
 	uint32_t h = seed;
     uint32_t k;
@@ -36,27 +67,4 @@ uint32_t Bloom_filter_t::murmur3_32(const uint8_t* key, size_t len, uint32_t see
     h *= 0xc2b2ae35;
     h ^= h >> 16;
     return h;
-}
-
-void Bloom_filter_t::insert(uint32_t * key,uint32_t * seeds){
-    // key is a array containing 5 elements
-    for(int i=0;i<K_FUNC;i++){
-        uint32_t hash_value = murmur3_32((const uint8_t *)key,5*4,seeds[i]);
-        v.set(hash_value % M_BITS,1);
-    }
-}
-
-bool Bloom_filter_t::find(uint32_t * key,uint32_t * seeds){
-    // key is a array containing 5 elements
-    bool exist = 1;
-    for(int i=0;i<K_FUNC;i++){
-        uint32_t hash_value = murmur3_32((const uint8_t *)key,5*4,seeds[i]);
-        exist &= v.test(hash_value % M_BITS);
-    }
-    return exist;
-}
-
-Bloom_filter_t & Bloom_filter_t::operator=(Bloom_filter_t & rhs){
-    this->v = rhs.v;
-    return *this;
 }
