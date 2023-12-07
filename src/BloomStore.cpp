@@ -119,9 +119,11 @@ bool Bloom_store_t::KV_lookup(uint32_t * key, uint32_t * value){
     bool in_active_bf = BF_buf.filter.find(key,seeds);
 
     if(in_active_bf){
-        for(uint32_t i=0;i<write_buf_ofs;i++){
+        for(uint32_t i=write_buf_ofs-1;i>=0;i--){
             // if find in the KV pair write buffer
-            if(memcmp(KV_pair_buf[i].key,key,KEY_SIZE)==0 && is_value_valid(KV_pair_buf[i].value)){
+            if(memcmp(KV_pair_buf[i].key,key,KEY_SIZE)==0){
+                if(!is_value_valid(KV_pair_buf[i].value))
+                    return false;
                 memcpy(value,KV_pair_buf[i].value,VALUE_SIZE);
                 return true;
             }
@@ -148,7 +150,9 @@ bool Bloom_store_t::KV_lookup(uint32_t * key, uint32_t * value){
             read_pages(((BF_t *)remainder_bf_chain)[i].pointer, (void *)temp_data_buf, 1);
             for(int j=KV_PAIR_NUM_PER_PAGE-1;j>=0;j--){
                 // if find in the KV pair write buffer
-                if(memcmp(temp_data_buf[j].key,key,KEY_SIZE)==0 && is_value_valid(temp_data_buf[j].value)){
+                if(memcmp(temp_data_buf[j].key,key,KEY_SIZE)==0){
+                    if(!is_value_valid(temp_data_buf[j].value))
+                        goto done;
                     memcpy(value,temp_data_buf[j].value,VALUE_SIZE);
                     found = true;
                     goto done;

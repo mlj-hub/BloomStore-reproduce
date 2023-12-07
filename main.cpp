@@ -38,11 +38,25 @@ int main(int argc,char ** argv){
         for(int j=0;j<5;j++)
             key[i][j] = e();
         for(int j=0;j<11;j++)
-            value[i][j] = e();
+            value[i][j] = i*11+j+1;
     }
 
-    for(int i=0;i<PAIR_NUM;i++)
+    for(int i=0;i<PAIR_NUM;i++){
+        if(i==10){
+            value[5][0]=100000;
+            bloom_store.KV_insertion(key[5],value[5]);
+        }
+        if(i==20){
+            bloom_store.KV_deletion(key[3]);
+            printf("delete 3\n");
+        }
         bloom_store.KV_insertion(key[i],value[i]);
+    }
+
+    bloom_store.KV_deletion(key[49]);
+
+    value[48][2] = 10000;
+    bloom_store.KV_insertion(key[48],value[48]);
 
     uint32_t test_value[PAIR_NUM][11];
     for(int i=0;i<PAIR_NUM;i++){
