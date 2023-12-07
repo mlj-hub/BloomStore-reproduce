@@ -22,8 +22,10 @@ public:
     std::bitset<M_BITS> v;
     uint32_t * seeds;
 
+    Bloom_filter_t();
     Bloom_filter_t(int32_t n,int32_t k);
     ~Bloom_filter_t();
+    void set_para(int32_t n,int32_t k);
 
     //hash function, reference from https://en.wikipedia.org/wiki/MurmurHash
     uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
@@ -36,6 +38,8 @@ public:
 
     void insert(uint32_t * key);
     bool find(uint32_t * key);
+
+    Bloom_filter_t & operator=(Bloom_filter_t & rhs);
 };
 
 #endif

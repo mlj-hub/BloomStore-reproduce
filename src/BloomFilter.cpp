@@ -1,5 +1,9 @@
 #include "../inc/BloomFilter.h"
 
+Bloom_filter_t::Bloom_filter_t(){
+    v.reset();
+}
+
 Bloom_filter_t::Bloom_filter_t(int32_t n, int32_t k): n(n),k(k){
     v.reset();
     seeds = new uint32_t[k];
@@ -11,6 +15,16 @@ Bloom_filter_t::Bloom_filter_t(int32_t n, int32_t k): n(n),k(k){
 
 Bloom_filter_t::~Bloom_filter_t(){
     delete seeds;
+}
+
+void Bloom_filter_t::set_para(int32_t n,int32_t k){
+    this->n = n;
+    this->k = k;
+    seeds = new uint32_t[k];
+    srand(time(NULL));
+    // generate seeds
+    for (int i=0;i<k;i++)
+        seeds[i] = rand();
 }
 
 uint32_t Bloom_filter_t::murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
@@ -63,4 +77,9 @@ bool Bloom_filter_t::find(uint32_t * key){
         exist &= v.test(hash_value % m);
     }
     return exist;
+}
+
+Bloom_filter_t & Bloom_filter_t::operator=(Bloom_filter_t & rhs){
+    this->v = rhs.v;
+    return *this;
 }
