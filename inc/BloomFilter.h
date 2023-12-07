@@ -7,25 +7,15 @@
 #include <bitset>
 #include <ctime>
 
-// number of bits
-#define M_BITS 1000
+#include "../inc/Util.h"
+
 
 class Bloom_filter_t{
 public:
-    // number of elements in the set S
-    int32_t n;
-    // number of hash functions
-    int32_t k;
-    // number of bits
-    int32_t m = M_BITS;
     // vector
     std::bitset<M_BITS> v;
-    uint32_t * seeds;
 
     Bloom_filter_t();
-    Bloom_filter_t(int32_t n,int32_t k);
-    ~Bloom_filter_t();
-    void set_para(int32_t n,int32_t k);
 
     //hash function, reference from https://en.wikipedia.org/wiki/MurmurHash
     uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
@@ -36,8 +26,8 @@ public:
         return k;
     }
 
-    void insert(uint32_t * key);
-    bool find(uint32_t * key);
+    void insert(uint32_t * key,uint32_t * seeds);
+    bool find(uint32_t * key,uint32_t * seeds);
 
     Bloom_filter_t & operator=(Bloom_filter_t & rhs);
 };
