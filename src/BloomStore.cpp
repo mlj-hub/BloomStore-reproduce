@@ -44,21 +44,13 @@ void Bloom_store_t::bf_chain_parallel_lookup(uint32_t * key,BF_t * remainder_bf_
  */
 uint32_t Bloom_store_t::read_pages(uint32_t ofs, void * buf, uint32_t num){
     uint32_t cur_ofs = lseek(fd,0,SEEK_CUR);
-    // uint32_t end_ofs = lseek(fd,0,SEEK_END);
 
-    if(lseek(fd,ofs,SEEK_SET) != ofs){
-        printf("cannot seek to %u\n",ofs);
-        exit(-1);
-    }
-
-    int read_num = read(fd,buf,FLASH_PAGE_SIZE*num);
+    int read_num = pread(fd,buf,FLASH_PAGE_SIZE*num,ofs);
 
     if(read_num != FLASH_PAGE_SIZE*(int)num){
         printf("cannot read a page, read num:%d\n",read_num);
         exit(-1);
     }
-
-    lseek(fd,cur_ofs,SEEK_SET);
 
     return cur_ofs;
 }
