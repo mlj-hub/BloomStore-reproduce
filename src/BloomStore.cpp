@@ -12,6 +12,7 @@ void Bloom_store_t::set_para(int32_t fd, uint32_t * seeds){
     in_flash_bf_chain_len = 0;
     write_buf_ofs=0;
     bf_chain_begin_addr = 0;
+    read_page_num = write_page_num = 0;
 }
 
 /**
@@ -43,6 +44,7 @@ void Bloom_store_t::bf_chain_parallel_lookup(uint32_t * key,BF_t * remainder_bf_
  * @note  This function will not change the file offset
  */
 uint32_t Bloom_store_t::read_pages(uint32_t ofs, void * buf, uint32_t num){
+    read_page_num += num;
     uint32_t cur_ofs = lseek(fd,0,SEEK_CUR);
 
     int read_num = pread(fd,buf,FLASH_PAGE_SIZE*num,ofs);
@@ -64,6 +66,7 @@ uint32_t Bloom_store_t::read_pages(uint32_t ofs, void * buf, uint32_t num){
  * @note this function will change file offset
  */
 uint32_t Bloom_store_t::write_pages(void * buf,uint32_t num){
+    write_page_num += num;
     uint32_t cur_ofs = lseek(fd,0,SEEK_CUR);
     int write_num = write(fd,buf,FLASH_PAGE_SIZE*num);
 

@@ -35,8 +35,6 @@ public:
     int32_t fd;
     // used for bloom filter
     uint32_t * seeds;
-    // i-th bloomstore instance, used for part block device
-    int32_t id;
     // current bf_chain_len
     uint32_t in_flash_bf_chain_len;
     // begining address of the flash pages storing the remainder of the BFchain
@@ -44,6 +42,10 @@ public:
 
     // Bloom filter size, in unit BYTE
     size_t BF_SIZE = sizeof(BF_t);
+
+    // total page read/write
+    uint32_t read_page_num;
+    uint32_t write_page_num;
 
     Bloom_store_t(){};
     Bloom_store_t(int32_t fd,uint32_t * seeds);
