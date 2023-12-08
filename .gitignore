@@ -3,3 +3,4 @@
 build/*
 configure
 raw_block
+*.txt
