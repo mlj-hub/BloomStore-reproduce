@@ -8,7 +8,7 @@
 #define K_FUNC 6
 
 // below are in bytes
-#define FLASH_PAGE_SIZE 512
+#define FLASH_PAGE_SIZE 4096
 #define KV_PAIR_SIZE 64
 #define MAX_BF_CHAIN_LEN 96
 #define KEY_SIZE 5*4

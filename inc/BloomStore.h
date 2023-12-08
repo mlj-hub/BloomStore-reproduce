@@ -10,8 +10,6 @@
 #include "../inc/BloomFilter.h"
 #include "../inc/Util.h"
 
-// Bloom filter size, in unit BYTE
-#define BF_SIZE (sizeof(Bloom_filter_t) + sizeof(uint32_t))
 
 class Bloom_store_t{
 public:
@@ -44,7 +42,12 @@ public:
     // begining address of the flash pages storing the remainder of the BFchain
     uint32_t bf_chain_begin_addr;
 
+    // Bloom filter size, in unit BYTE
+    size_t BF_SIZE = sizeof(BF_t);
+
+    Bloom_store_t(){};
     Bloom_store_t(int32_t fd,uint32_t * seeds);
+    void set_para(int32_t fd,uint32_t * seeds);
 
     void flush();
     bool KV_lookup(uint32_t * key, uint32_t * value);

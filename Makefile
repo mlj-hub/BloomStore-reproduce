@@ -1,9 +1,9 @@
 BLD = ./build
 SRC = ./src
-BLOCK_SIZE = 10M
+BLOCK_SIZE = 8G
 
 all: 
-	g++ -O3 -g -Wextra -Wall -o $(BLD)/main main.cpp $(SRC)/BloomStore.cpp $(SRC)/BloomFilter.cpp
+	g++ -O3 -g -Wpedantic -Wextra -Wall -o $(BLD)/main main.cpp $(SRC)/BloomStore.cpp $(SRC)/BloomFilter.cpp
 
 test: all
 	$(BLD)/main `cat configure`

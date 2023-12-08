@@ -3,6 +3,15 @@
 Bloom_store_t::Bloom_store_t(int32_t fd,uint32_t * seeds):fd(fd), seeds(seeds){
     in_flash_bf_chain_len = 0;
     write_buf_ofs=0;
+    bf_chain_begin_addr = 0;
+}
+
+void Bloom_store_t::set_para(int32_t fd, uint32_t * seeds){
+    this->fd = fd;
+    this->seeds = seeds;
+    in_flash_bf_chain_len = 0;
+    write_buf_ofs=0;
+    bf_chain_begin_addr = 0;
 }
 
 /**
@@ -94,6 +103,11 @@ void Bloom_store_t::flush(){
 
     void * remainder_chain_page = aligned_alloc(FLASH_PAGE_SIZE,alloced_size);
 
+    if(!remainder_chain_page){
+        printf("cannot alloc data\n");
+        exit(-1);
+    }
+
     uint32_t cur_ofs = read_pages(bf_chain_begin_addr,remainder_chain_page,used_pages);
 
     ((BF_t*) remainder_chain_page)[in_flash_bf_chain_len] = BF_buf; 
@@ -119,7 +133,7 @@ bool Bloom_store_t::KV_lookup(uint32_t * key, uint32_t * value){
     bool in_active_bf = BF_buf.filter.find(key,seeds);
 
     if(in_active_bf){
-        for(uint32_t i=write_buf_ofs-1;i>=0;i--){
+        for(int i=(int)write_buf_ofs-1;i>=0;i--){
             // if find in the KV pair write buffer
             if(memcmp(KV_pair_buf[i].key,key,KEY_SIZE)==0){
                 if(!is_value_valid(KV_pair_buf[i].value))
