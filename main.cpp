@@ -7,12 +7,20 @@
 #include <fstream>
 #include <string>
 #include <random>
-#include <ctime>
+#include <sys/time.h>
 
 #include "inc/BloomFilter.h"
 #include "inc/BloomStore.h"
 
-#define PAIR_NUM 50
+#define INSTANCE_NUM 96
+#define KV_PAIR_FILE "key_value_demo.txt"
+#define RES_FILE "bloom_store_demo_res.txt"
+
+#define CHOICE_SEEDS 154169715
+
+uint32_t get_store_instance_id(uint32_t * key){
+    return murmur3_32((uint8_t *)key,KEY_SIZE,CHOICE_SEEDS) % INSTANCE_NUM;
+}
 
 int main(int argc,char ** argv){
     int fd;
@@ -29,47 +37,56 @@ int main(int argc,char ** argv){
         seeds[i] = e();
     }
 
-    Bloom_store_t bloom_store(fd,seeds);
-
-    uint32_t key[PAIR_NUM][5];
-    uint32_t value[PAIR_NUM][11];
-
-    for(int i=0;i<PAIR_NUM;i++){
-        for(int j=0;j<5;j++)
-            key[i][j] = e();
-        for(int j=0;j<11;j++)
-            value[i][j] = i*11+j+1;
+    std::ifstream ifs(KV_PAIR_FILE,std::ios::in);
+    if(!ifs){
+        printf("cannot open kv pair file\n");
     }
 
-    for(int i=0;i<PAIR_NUM;i++){
-        if(i==10){
-            value[5][0]=100000;
-            bloom_store.KV_insertion(key[5],value[5]);
-        }
-        if(i==20){
-            bloom_store.KV_deletion(key[3]);
-            printf("delete 3\n");
-        }
-        bloom_store.KV_insertion(key[i],value[i]);
+    std::ofstream ofs(RES_FILE,std::ios::out | std::ios::trunc);
+    if(!ofs){
+        printf("cannot open kv pair file\n");
     }
 
-    bloom_store.KV_deletion(key[49]);
+    Bloom_store_t store_instance[INSTANCE_NUM];
+    for(int i=0;i<INSTANCE_NUM;i++)
+        store_instance[i].set_para(fd,seeds);
 
-    value[48][2] = 10000;
-    bloom_store.KV_insertion(key[48],value[48]);
+    std::string line;
+    uint32_t key[5];
+    uint32_t value[11];
 
-    uint32_t test_value[PAIR_NUM][11];
-    for(int i=0;i<PAIR_NUM;i++){
-        bool res = bloom_store.KV_lookup(key[i],test_value[i]);
-        if(!res){
-            printf("pair %d cannot find\n",i);
-            continue;
+    struct timeval start_time;
+    gettimeofday(&start_time, NULL);
+
+    uint64_t ops = 0;
+    while(std::getline(ifs,line)){
+        uint32_t key_num = std::stoi(line);
+        key[0] = key[1] = key[2] = key[3] = key[4] = key_num;
+        uint32_t id = get_store_instance_id(key);
+        // if find in the instance, print the value
+        if(store_instance[id].KV_lookup(key,value)){
+            ofs<<value[0]<<"\n";
+            ops++;
         }
-        if(memcmp(test_value[i],value[i],VALUE_SIZE))
-            printf("pair %d value error\n",i);
-        else
-            printf("pair %d value correct\n",i);
+        // if not find, insert it, print not find
+        else{
+            value[0] = key_num;
+            store_instance[id].KV_insertion(key,value);
+            ofs<<"not find\n";
+            ops+=2;
+        }
     }
+    
+    struct timeval end_time;
+    gettimeofday(&end_time,NULL);
+
+    double time_duration = (double)(end_time.tv_sec - start_time.tv_sec) + (double)(end_time.tv_usec - start_time.tv_usec)/1000.0/1000.0;
+
+    printf("flash page size: %d\n",FLASH_PAGE_SIZE);
+    printf("ops num: %lu\n",ops);
+    printf("caused time: %lfs\n", time_duration);
+    printf("ops/sec: %lf\n",(double)ops/time_duration);
+    printf("used space: %lfM\n",(double)lseek(fd,0,SEEK_CUR)/1024.0/1024.0);
 
     close(fd);
     return 0;
