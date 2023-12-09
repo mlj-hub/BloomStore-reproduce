@@ -3,9 +3,9 @@
 
 
 // number of bits
-#define M_BITS 64
+#define M_BITS 1024
 // number of hash functions
-#define K_FUNC 6
+#define K_FUNC 11
 
 // below are in bytes
 #define FLASH_PAGE_SIZE 4096
